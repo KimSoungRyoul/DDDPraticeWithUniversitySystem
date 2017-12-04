@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.CustomerMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="customerResultMap" type="src.main.java.org.pre.mybatis.domain.Customer">
+        <id column="CUSTID" property="custid" />
+        <result column="NAME" property="name" />
+        <result column="ADDRESS" property="address" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="custid > 0">
+                AND CUSTID = #{custid}
+            </if>
+            <if test="name != null and name != ''">
+                AND NAME = #{name}
+            </if>
+            <if test="address != null and address != ''">
+                AND ADDRESS = #{address}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.Customer" resultType="int">
+        SELECT COUNT(*) 
+        FROM CUSTOMER
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.Customer" resultMap="customerResultMap">
+        SELECT * 
+        FROM (
+            SELECT ROW_NUMBER() OVER(ORDER BY CUSTID) RN
+                  ,CUSTID
+                  ,NAME
+                  ,ADDRESS
+            FROM CUSTOMER
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.Customer" resultMap="customerResultMap">
+        SELECT 
+            CUSTID,
+            NAME,
+            ADDRESS
+        FROM CUSTOMER
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.Customer">
+        <!-- 자동 생성 키 조회 -->
+        <selectKey keyColumn="CUSTID" keyProperty="custid" resultType="int" order="BEFORE" >
+            SELECT CUSTID_SEQ.NEXTVAL
+            FROM DUAL
+        </selectKey>
+        INSERT INTO CUSTOMER (
+            CUSTID,
+            NAME,
+            ADDRESS
+        )
+        VALUES (
+            #{custid},
+            #{name},
+            #{address}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.Customer">
+        UPDATE CUSTOMER
+        <set>
+            <if test="custid > 0">
+                CUSTID = #{custid},
+            </if>
+            <if test="name != null">
+                NAME = #{name},
+            </if>
+            <if test="address != null">
+                ADDRESS = #{address},
+            </if>
+        </set>
+        <where>
+            <if test="custid > 0">
+                AND CUSTID = #{custid}
+            </if>
+        </where> 
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM CUSTOMER 
+        <where>
+            <if test="custid > 0">
+                AND CUSTID = #{custid}
+            </if>
+        </where> 
+    </delete>
+</mapper>

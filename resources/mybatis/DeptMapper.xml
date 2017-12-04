@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.DeptMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="deptResultMap" type="src.main.java.org.pre.mybatis.domain.Dept">
+        <result column="DEPTNO" property="deptno" />
+        <result column="DNAME" property="dname" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="deptno > 0">
+                AND DEPTNO = #{deptno}
+            </if>
+            <if test="dname != null and dname != ''">
+                AND DNAME = #{dname}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.Dept" resultType="int">
+        SELECT COUNT(*) 
+        FROM DEPT
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.Dept" resultMap="deptResultMap">
+        SELECT * 
+        FROM (
+                  ,DEPTNO
+                  ,DNAME
+            FROM DEPT
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.Dept" resultMap="deptResultMap">
+        SELECT 
+            DEPTNO,
+            DNAME
+        FROM DEPT
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.Dept">
+        INSERT INTO DEPT (
+            DEPTNO,
+            DNAME
+        )
+        VALUES (
+            #{deptno},
+            #{dname}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.Dept">
+        UPDATE DEPT
+        <set>
+            <if test="deptno > 0">
+                DEPTNO = #{deptno},
+            </if>
+            <if test="dname != null">
+                DNAME = #{dname},
+            </if>
+        </set>
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM DEPT 
+        <!-- TODO : WHERE -->
+    </delete>
+</mapper>

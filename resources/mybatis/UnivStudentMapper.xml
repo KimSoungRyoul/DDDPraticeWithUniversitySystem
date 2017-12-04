@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.UnivStudentMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="univStudentResultMap" type="src.main.java.org.pre.mybatis.domain.UnivStudent">
+        <id column="STUDNO" property="studno" />
+        <result column="NAME" property="name" />
+        <result column="ID" property="id" />
+        <result column="GRADE" property="grade" />
+        <result column="JUMIN" property="jumin" />
+        <result column="BIRTHDAY" property="birthday" />
+        <result column="TEL" property="tel" />
+        <result column="HEIGHT" property="height" />
+        <result column="WEIGHT" property="weight" />
+        <result column="DEPTNO1" property="deptno1" />
+        <result column="DEPTNO2" property="deptno2" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="studno > 0">
+                AND STUDNO = #{studno}
+            </if>
+            <if test="name != null and name != ''">
+                AND NAME = #{name}
+            </if>
+            <if test="id != null and id != ''">
+                AND ID = #{id}
+            </if>
+            <if test="grade > 0">
+                AND GRADE = #{grade}
+            </if>
+            <if test="jumin != null and jumin != ''">
+                AND JUMIN = #{jumin}
+            </if>
+            <if test="birthday != null and birthday != ''">
+                AND BIRTHDAY = #{birthday}
+            </if>
+            <if test="tel != null and tel != ''">
+                AND TEL = #{tel}
+            </if>
+            <if test="height > 0">
+                AND HEIGHT = #{height}
+            </if>
+            <if test="weight > 0">
+                AND WEIGHT = #{weight}
+            </if>
+            <if test="deptno1 > 0">
+                AND DEPTNO1 = #{deptno1}
+            </if>
+            <if test="deptno2 > 0">
+                AND DEPTNO2 = #{deptno2}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.UnivStudent" resultType="int">
+        SELECT COUNT(*) 
+        FROM UNIV_STUDENT
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.UnivStudent" resultMap="univStudentResultMap">
+        SELECT * 
+        FROM (
+            SELECT ROW_NUMBER() OVER(ORDER BY STUDNO) RN
+                  ,STUDNO
+                  ,NAME
+                  ,ID
+                  ,GRADE
+                  ,JUMIN
+                  ,BIRTHDAY
+                  ,TEL
+                  ,HEIGHT
+                  ,WEIGHT
+                  ,DEPTNO1
+                  ,DEPTNO2
+            FROM UNIV_STUDENT
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.UnivStudent" resultMap="univStudentResultMap">
+        SELECT 
+            STUDNO,
+            NAME,
+            ID,
+            GRADE,
+            JUMIN,
+            BIRTHDAY,
+            TEL,
+            HEIGHT,
+            WEIGHT,
+            DEPTNO1,
+            DEPTNO2
+        FROM UNIV_STUDENT
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.UnivStudent">
+        <!-- 자동 생성 키 조회 -->
+        <selectKey keyColumn="STUDNO" keyProperty="studno" resultType="int" order="BEFORE" >
+            SELECT STUDNO_SEQ.NEXTVAL
+            FROM DUAL
+        </selectKey>
+        INSERT INTO UNIV_STUDENT (
+            STUDNO,
+            NAME,
+            ID,
+            GRADE,
+            JUMIN,
+            BIRTHDAY,
+            TEL,
+            HEIGHT,
+            WEIGHT,
+            DEPTNO1,
+            DEPTNO2
+        )
+        VALUES (
+            #{studno},
+            #{name},
+            #{id},
+            #{grade},
+            #{jumin},
+            #{birthday},
+            #{tel},
+            #{height},
+            #{weight},
+            #{deptno1},
+            #{deptno2}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.UnivStudent">
+        UPDATE UNIV_STUDENT
+        <set>
+            <if test="studno > 0">
+                STUDNO = #{studno},
+            </if>
+            <if test="name != null">
+                NAME = #{name},
+            </if>
+            <if test="id != null">
+                ID = #{id},
+            </if>
+            <if test="grade > 0">
+                GRADE = #{grade},
+            </if>
+            <if test="jumin != null">
+                JUMIN = #{jumin},
+            </if>
+            <if test="birthday != null">
+                BIRTHDAY = #{birthday},
+            </if>
+            <if test="tel != null">
+                TEL = #{tel},
+            </if>
+            <if test="height > 0">
+                HEIGHT = #{height},
+            </if>
+            <if test="weight > 0">
+                WEIGHT = #{weight},
+            </if>
+            <if test="deptno1 > 0">
+                DEPTNO1 = #{deptno1},
+            </if>
+            <if test="deptno2 > 0">
+                DEPTNO2 = #{deptno2},
+            </if>
+        </set>
+        <where>
+            <if test="studno > 0">
+                AND STUDNO = #{studno}
+            </if>
+        </where> 
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM UNIV_STUDENT 
+        <where>
+            <if test="studno > 0">
+                AND STUDNO = #{studno}
+            </if>
+        </where> 
+    </delete>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="org.pre.mybatis.mapper.EmpDno3Mapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="empDno3ResultMap" type="org.pre.mybatis.domain.EmpDno3">
+        <result column="ENO" property="eno" />
+        <result column="ENAME" property="ename" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="eno > 0">
+                AND ENO = #{eno}
+            </if>
+            <if test="ename != null and ename != ''">
+                AND ENAME = #{ename}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="org.pre.mybatis.domain.EmpDno3" resultType="int">
+        SELECT COUNT(*) 
+        FROM EMP_DNO3
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="org.pre.mybatis.domain.EmpDno3" resultMap="empDno3ResultMap">
+        SELECT * 
+        FROM (
+                  ,ENO
+                  ,ENAME
+            FROM EMP_DNO3
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="org.pre.mybatis.domain.EmpDno3" resultMap="empDno3ResultMap">
+        SELECT 
+            ENO,
+            ENAME
+        FROM EMP_DNO3
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="org.pre.mybatis.domain.EmpDno3">
+        INSERT INTO EMP_DNO3 (
+            ENO,
+            ENAME
+        )
+        VALUES (
+            #{eno},
+            #{ename}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="org.pre.mybatis.domain.EmpDno3">
+        UPDATE EMP_DNO3
+        <set>
+            <if test="eno > 0">
+                ENO = #{eno},
+            </if>
+            <if test="ename != null">
+                ENAME = #{ename},
+            </if>
+        </set>
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM EMP_DNO3 
+        <!-- TODO : WHERE -->
+    </delete>
+</mapper>

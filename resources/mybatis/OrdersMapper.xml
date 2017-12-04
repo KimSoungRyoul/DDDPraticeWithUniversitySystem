@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.OrdersMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="ordersResultMap" type="src.main.java.org.pre.mybatis.domain.Orders">
+        <id column="ORDERID" property="orderid" />
+        <result column="CUSTID" property="custid" />
+        <result column="BOOKID" property="bookid" />
+        <result column="SALEPRICE" property="saleprice" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="orderid > 0">
+                AND ORDERID = #{orderid}
+            </if>
+            <if test="custid > 0">
+                AND CUSTID = #{custid}
+            </if>
+            <if test="bookid > 0">
+                AND BOOKID = #{bookid}
+            </if>
+            <if test="saleprice > 0">
+                AND SALEPRICE = #{saleprice}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.Orders" resultType="int">
+        SELECT COUNT(*) 
+        FROM ORDERS
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.Orders" resultMap="ordersResultMap">
+        SELECT * 
+        FROM (
+            SELECT ROW_NUMBER() OVER(ORDER BY ORDERID) RN
+                  ,ORDERID
+                  ,CUSTID
+                  ,BOOKID
+                  ,SALEPRICE
+            FROM ORDERS
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.Orders" resultMap="ordersResultMap">
+        SELECT 
+            ORDERID,
+            CUSTID,
+            BOOKID,
+            SALEPRICE
+        FROM ORDERS
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.Orders">
+        <!-- 자동 생성 키 조회 -->
+        <selectKey keyColumn="ORDERID" keyProperty="orderid" resultType="int" order="BEFORE" >
+            SELECT ORDERID_SEQ.NEXTVAL
+            FROM DUAL
+        </selectKey>
+        INSERT INTO ORDERS (
+            ORDERID,
+            CUSTID,
+            BOOKID,
+            SALEPRICE
+        )
+        VALUES (
+            #{orderid},
+            #{custid},
+            #{bookid},
+            #{saleprice}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.Orders">
+        UPDATE ORDERS
+        <set>
+            <if test="orderid > 0">
+                ORDERID = #{orderid},
+            </if>
+            <if test="custid > 0">
+                CUSTID = #{custid},
+            </if>
+            <if test="bookid > 0">
+                BOOKID = #{bookid},
+            </if>
+            <if test="saleprice > 0">
+                SALEPRICE = #{saleprice},
+            </if>
+        </set>
+        <where>
+            <if test="orderid > 0">
+                AND ORDERID = #{orderid}
+            </if>
+        </where> 
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM ORDERS 
+        <where>
+            <if test="orderid > 0">
+                AND ORDERID = #{orderid}
+            </if>
+        </where> 
+    </delete>
+</mapper>

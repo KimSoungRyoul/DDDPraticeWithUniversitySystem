@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.SalaryViewMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="salaryViewResultMap" type="src.main.java.org.pre.mybatis.domain.SalaryView">
+        <result column="ENAME" property="ename" />
+        <result column="DEPTNO" property="deptno" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="ename != null and ename != ''">
+                AND ENAME = #{ename}
+            </if>
+            <if test="deptno > 0">
+                AND DEPTNO = #{deptno}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.SalaryView" resultType="int">
+        SELECT COUNT(*) 
+        FROM SALARY_VIEW
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.SalaryView" resultMap="salaryViewResultMap">
+        SELECT * 
+        FROM (
+                  ,ENAME
+                  ,DEPTNO
+            FROM SALARY_VIEW
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.SalaryView" resultMap="salaryViewResultMap">
+        SELECT 
+            ENAME,
+            DEPTNO
+        FROM SALARY_VIEW
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.SalaryView">
+        INSERT INTO SALARY_VIEW (
+            ENAME,
+            DEPTNO
+        )
+        VALUES (
+            #{ename},
+            #{deptno}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.SalaryView">
+        UPDATE SALARY_VIEW
+        <set>
+            <if test="ename != null">
+                ENAME = #{ename},
+            </if>
+            <if test="deptno > 0">
+                DEPTNO = #{deptno},
+            </if>
+        </set>
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM SALARY_VIEW 
+        <!-- TODO : WHERE -->
+    </delete>
+</mapper>

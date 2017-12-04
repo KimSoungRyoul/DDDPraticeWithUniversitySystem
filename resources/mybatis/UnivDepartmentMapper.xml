@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.UnivDepartmentMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="univDepartmentResultMap" type="src.main.java.org.pre.mybatis.domain.UnivDepartment">
+        <id column="DEPTNO" property="deptno" />
+        <result column="DNAME" property="dname" />
+        <result column="PART" property="part" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="deptno > 0">
+                AND DEPTNO = #{deptno}
+            </if>
+            <if test="dname != null and dname != ''">
+                AND DNAME = #{dname}
+            </if>
+            <if test="part > 0">
+                AND PART = #{part}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.UnivDepartment" resultType="int">
+        SELECT COUNT(*) 
+        FROM UNIV_DEPARTMENT
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.UnivDepartment" resultMap="univDepartmentResultMap">
+        SELECT * 
+        FROM (
+            SELECT ROW_NUMBER() OVER(ORDER BY DEPTNO) RN
+                  ,DEPTNO
+                  ,DNAME
+                  ,PART
+            FROM UNIV_DEPARTMENT
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.UnivDepartment" resultMap="univDepartmentResultMap">
+        SELECT 
+            DEPTNO,
+            DNAME,
+            PART
+        FROM UNIV_DEPARTMENT
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.UnivDepartment">
+        <!-- 자동 생성 키 조회 -->
+        <selectKey keyColumn="DEPTNO" keyProperty="deptno" resultType="int" order="BEFORE" >
+            SELECT DEPTNO_SEQ.NEXTVAL
+            FROM DUAL
+        </selectKey>
+        INSERT INTO UNIV_DEPARTMENT (
+            DEPTNO,
+            DNAME,
+            PART
+        )
+        VALUES (
+            #{deptno},
+            #{dname},
+            #{part}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.UnivDepartment">
+        UPDATE UNIV_DEPARTMENT
+        <set>
+            <if test="deptno > 0">
+                DEPTNO = #{deptno},
+            </if>
+            <if test="dname != null">
+                DNAME = #{dname},
+            </if>
+            <if test="part > 0">
+                PART = #{part},
+            </if>
+        </set>
+        <where>
+            <if test="deptno > 0">
+                AND DEPTNO = #{deptno}
+            </if>
+        </where> 
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM UNIV_DEPARTMENT 
+        <where>
+            <if test="deptno > 0">
+                AND DEPTNO = #{deptno}
+            </if>
+        </where> 
+    </delete>
+</mapper>

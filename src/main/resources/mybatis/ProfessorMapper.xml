@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="org.pre.mybatis.mapper.ProfessorMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="professorResultMap" type="org.pre.mybatis.domain.Professor">
+        <id column="PROFNO" property="profno" />
+        <result column="NAME" property="name" />
+        <result column="ID" property="id" />
+        <result column="POSITION" property="position" />
+        <result column="PAY" property="pay" />
+        <result column="HIREDATE" property="hiredate" />
+        <result column="BONUS" property="bonus" />
+        <result column="DEPTNO" property="deptno" />
+        <result column="EMAIL" property="email" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="profno > 0">
+                AND PROFNO = #{profno}
+            </if>
+            <if test="name != null and name != ''">
+                AND NAME = #{name}
+            </if>
+            <if test="id != null and id != ''">
+                AND ID = #{id}
+            </if>
+            <if test="position != null and position != ''">
+                AND POSITION = #{position}
+            </if>
+            <if test="pay > 0">
+                AND PAY = #{pay}
+            </if>
+            <if test="hiredate != null and hiredate != ''">
+                AND HIREDATE = #{hiredate}
+            </if>
+            <if test="bonus > 0">
+                AND BONUS = #{bonus}
+            </if>
+            <if test="deptno > 0">
+                AND DEPTNO = #{deptno}
+            </if>
+            <if test="email != null and email != ''">
+                AND EMAIL = #{email}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="org.pre.mybatis.domain.Professor" resultType="int">
+        SELECT COUNT(*) 
+        FROM PROFESSOR
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="org.pre.mybatis.domain.Professor" resultMap="professorResultMap">
+        SELECT * 
+        FROM (
+            SELECT ROW_NUMBER() OVER(ORDER BY PROFNO) RN
+                  ,PROFNO
+                  ,NAME
+                  ,ID
+                  ,POSITION
+                  ,PAY
+                  ,HIREDATE
+                  ,BONUS
+                  ,DEPTNO
+                  ,EMAIL
+            FROM PROFESSOR
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="org.pre.mybatis.domain.Professor" resultMap="professorResultMap">
+        SELECT 
+            PROFNO,
+            NAME,
+            ID,
+            POSITION,
+            PAY,
+            HIREDATE,
+            BONUS,
+            DEPTNO,
+            EMAIL
+        FROM PROFESSOR
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="org.pre.mybatis.domain.Professor">
+        <!-- 자동 생성 키 조회 -->
+        <selectKey keyColumn="PROFNO" keyProperty="profno" resultType="int" order="BEFORE" >
+            SELECT PROFNO_SEQ.NEXTVAL
+            FROM DUAL
+        </selectKey>
+        INSERT INTO PROFESSOR (
+            PROFNO,
+            NAME,
+            ID,
+            POSITION,
+            PAY,
+            HIREDATE,
+            BONUS,
+            DEPTNO,
+            EMAIL
+        )
+        VALUES (
+            #{profno},
+            #{name},
+            #{id},
+            #{position},
+            #{pay},
+            #{hiredate},
+            #{bonus},
+            #{deptno},
+            #{email}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="org.pre.mybatis.domain.Professor">
+        UPDATE PROFESSOR
+        <set>
+            <if test="profno > 0">
+                PROFNO = #{profno},
+            </if>
+            <if test="name != null">
+                NAME = #{name},
+            </if>
+            <if test="id != null">
+                ID = #{id},
+            </if>
+            <if test="position != null">
+                POSITION = #{position},
+            </if>
+            <if test="pay > 0">
+                PAY = #{pay},
+            </if>
+            <if test="hiredate != null">
+                HIREDATE = #{hiredate},
+            </if>
+            <if test="bonus > 0">
+                BONUS = #{bonus},
+            </if>
+            <if test="deptno > 0">
+                DEPTNO = #{deptno},
+            </if>
+            <if test="email != null">
+                EMAIL = #{email},
+            </if>
+        </set>
+        <where>
+            <if test="profno > 0">
+                AND PROFNO = #{profno}
+            </if>
+        </where> 
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM PROFESSOR 
+        <where>
+            <if test="profno > 0">
+                AND PROFNO = #{profno}
+            </if>
+        </where> 
+    </delete>
+</mapper>

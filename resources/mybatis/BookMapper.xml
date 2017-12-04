@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="src.main.java.org.pre.mybatis.mapper.BookMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="bookResultMap" type="src.main.java.org.pre.mybatis.domain.Book">
+        <id column="BOOKID" property="bookid" />
+        <result column="BOOKNAME" property="bookname" />
+        <result column="PUBLISHER" property="publisher" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="bookid > 0">
+                AND BOOKID = #{bookid}
+            </if>
+            <if test="bookname != null and bookname != ''">
+                AND BOOKNAME = #{bookname}
+            </if>
+            <if test="publisher != null and publisher != ''">
+                AND PUBLISHER = #{publisher}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="src.main.java.org.pre.mybatis.domain.Book" resultType="int">
+        SELECT COUNT(*) 
+        FROM BOOK
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="src.main.java.org.pre.mybatis.domain.Book" resultMap="bookResultMap">
+        SELECT * 
+        FROM (
+            SELECT ROW_NUMBER() OVER(ORDER BY BOOKID) RN
+                  ,BOOKID
+                  ,BOOKNAME
+                  ,PUBLISHER
+            FROM BOOK
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="src.main.java.org.pre.mybatis.domain.Book" resultMap="bookResultMap">
+        SELECT 
+            BOOKID,
+            BOOKNAME,
+            PUBLISHER
+        FROM BOOK
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="src.main.java.org.pre.mybatis.domain.Book">
+        <!-- 자동 생성 키 조회 -->
+        <selectKey keyColumn="BOOKID" keyProperty="bookid" resultType="int" order="BEFORE" >
+            SELECT BOOKID_SEQ.NEXTVAL
+            FROM DUAL
+        </selectKey>
+        INSERT INTO BOOK (
+            BOOKID,
+            BOOKNAME,
+            PUBLISHER
+        )
+        VALUES (
+            #{bookid},
+            #{bookname},
+            #{publisher}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="src.main.java.org.pre.mybatis.domain.Book">
+        UPDATE BOOK
+        <set>
+            <if test="bookid > 0">
+                BOOKID = #{bookid},
+            </if>
+            <if test="bookname != null">
+                BOOKNAME = #{bookname},
+            </if>
+            <if test="publisher != null">
+                PUBLISHER = #{publisher},
+            </if>
+        </set>
+        <where>
+            <if test="bookid > 0">
+                AND BOOKID = #{bookid}
+            </if>
+        </where> 
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM BOOK 
+        <where>
+            <if test="bookid > 0">
+                AND BOOKID = #{bookid}
+            </if>
+        </where> 
+    </delete>
+</mapper>

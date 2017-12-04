@@ -1,0 +1,53 @@
+spring:
+  profiles:
+      active:
+      - oracle2
+
+---
+
+spring:
+    profiles: mysql
+    datasource:
+      url: jdbc:mysql://localhost:3306/db_assignment_db?useSSL=false
+      username: root
+      password: mysql_password
+      
+    jpa:
+      hibernate:
+        ddl-auto: create
+      database: mysql
+      generate-ddl: true
+      show-sql: true
+      properties:
+        hibernate.format_sql: true
+        hibernate.use_sql_comments: true
+        
+---
+
+spring:
+    profiles: oracle2
+    datasource:
+      url: jdbc:oracle:thin:@localhost:1521:orlc
+      username: ksr_db_assignment
+      password: 1234
+    jpa:
+      hibernate:
+        ddl-auto: create
+      database: oracle
+      generate-ddl: true
+      show-sql: true
+      properties:
+        hibernate.format_sql: true
+        hibernate.use_sql_comments: true
+        hibernate.hql.spi.id.inline.InlineIdsSubSelectValueListBulkIdStrategy: true
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        

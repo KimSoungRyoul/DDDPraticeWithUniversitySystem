@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="org.pre.mybatis.mapper.EmpMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="empResultMap" type="org.pre.mybatis.domain.Emp">
+        <result column="EMPNO" property="empno" />
+        <result column="ENAME" property="ename" />
+        <result column="JOB" property="job" />
+        <result column="MGR" property="mgr" />
+        <result column="HIREDATE" property="hiredate" />
+        <result column="SAL" property="sal" />
+        <result column="COMM" property="comm" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="empno > 0">
+                AND EMPNO = #{empno}
+            </if>
+            <if test="ename != null and ename != ''">
+                AND ENAME = #{ename}
+            </if>
+            <if test="job != null and job != ''">
+                AND JOB = #{job}
+            </if>
+            <if test="mgr > 0">
+                AND MGR = #{mgr}
+            </if>
+            <if test="hiredate != null and hiredate != ''">
+                AND HIREDATE = #{hiredate}
+            </if>
+            <if test="sal > 0">
+                AND SAL = #{sal}
+            </if>
+            <if test="comm > 0">
+                AND COMM = #{comm}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="org.pre.mybatis.domain.Emp" resultType="int">
+        SELECT COUNT(*) 
+        FROM EMP
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="org.pre.mybatis.domain.Emp" resultMap="empResultMap">
+        SELECT * 
+        FROM (
+                  ,EMPNO
+                  ,ENAME
+                  ,JOB
+                  ,MGR
+                  ,HIREDATE
+                  ,SAL
+                  ,COMM
+            FROM EMP
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="org.pre.mybatis.domain.Emp" resultMap="empResultMap">
+        SELECT 
+            EMPNO,
+            ENAME,
+            JOB,
+            MGR,
+            HIREDATE,
+            SAL,
+            COMM
+        FROM EMP
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="org.pre.mybatis.domain.Emp">
+        INSERT INTO EMP (
+            EMPNO,
+            ENAME,
+            JOB,
+            MGR,
+            HIREDATE,
+            SAL,
+            COMM
+        )
+        VALUES (
+            #{empno},
+            #{ename},
+            #{job},
+            #{mgr},
+            #{hiredate},
+            #{sal},
+            #{comm}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="org.pre.mybatis.domain.Emp">
+        UPDATE EMP
+        <set>
+            <if test="empno > 0">
+                EMPNO = #{empno},
+            </if>
+            <if test="ename != null">
+                ENAME = #{ename},
+            </if>
+            <if test="job != null">
+                JOB = #{job},
+            </if>
+            <if test="mgr > 0">
+                MGR = #{mgr},
+            </if>
+            <if test="hiredate != null">
+                HIREDATE = #{hiredate},
+            </if>
+            <if test="sal > 0">
+                SAL = #{sal},
+            </if>
+            <if test="comm > 0">
+                COMM = #{comm},
+            </if>
+        </set>
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM EMP 
+        <!-- TODO : WHERE -->
+    </delete>
+</mapper>

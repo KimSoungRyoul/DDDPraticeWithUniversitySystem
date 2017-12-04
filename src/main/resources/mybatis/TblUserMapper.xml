@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- @author https://www.facebook.com/groups/mybatis/ -->
+<mapper namespace="org.pre.mybatis.mapper.TblUserMapper">
+    <!-- 리절트 맵 -->
+    <resultMap id="tblUserResultMap" type="org.pre.mybatis.domain.TblUser">
+        <result column="ID" property="id" />
+        <result column="name" property="name" />
+    </resultMap>
+
+    <sql id="whereSql">
+        <where>
+            <if test="id != null and id != ''">
+                AND ID = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND name = #{name}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 전체 건수 조회 매핑 구문 -->
+    <select id="count" parameterType="org.pre.mybatis.domain.TblUser" resultType="int">
+        SELECT COUNT(*) 
+        FROM TBL_USER
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 목록 조회 매핑 구문 -->
+    <select id="list" parameterType="org.pre.mybatis.domain.TblUser" resultMap="tblUserResultMap">
+        SELECT * 
+        FROM (
+                  ,ID
+                  ,name
+            FROM TBL_USER
+            <include refid="whereSql" />
+        ) TB
+        <where>
+            <if test="itemStart > -1">
+                RN BETWEEN (#{itemStart} + 1) 
+                       AND (#{itemStart} + #{itemSizePerPage})
+            </if>
+        </where>
+    </select>
+
+    <!-- 조회 매핑 구문 -->
+    <select id="select" parameterType="org.pre.mybatis.domain.TblUser" resultMap="tblUserResultMap">
+        SELECT 
+            ID,
+            name
+        FROM TBL_USER
+        <include refid="whereSql" />
+    </select>
+
+    <!-- 등록 매핑 구문 -->
+    <insert id="insert" parameterType="org.pre.mybatis.domain.TblUser">
+        INSERT INTO TBL_USER (
+            ID,
+            name
+        )
+        VALUES (
+            #{id},
+            #{name}
+        )
+    </insert>
+
+    <!-- 수정 매핑 구문 -->
+    <update id="update" parameterType="org.pre.mybatis.domain.TblUser">
+        UPDATE TBL_USER
+        <set>
+            <if test="id != null">
+                ID = #{id},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+        </set>
+    </update>
+
+    <!-- 삭제 매핑 구문 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM TBL_USER 
+        <!-- TODO : WHERE -->
+    </delete>
+</mapper>
